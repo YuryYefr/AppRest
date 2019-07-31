@@ -1,5 +1,4 @@
 """Client to start app"""
-from fbs_runtime.application_context.PyQt5 import ApplicationContext
 import sys
 from id import AgentName  # To gain employee id
 import rest_design  # Table build
