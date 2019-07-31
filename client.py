@@ -1,4 +1,5 @@
 """Client to start app"""
+from fbs_runtime.application_context.PyQt5 import ApplicationContext
 import sys
 from id import AgentName  # To gain employee id
 import rest_design  # Table build
@@ -9,6 +10,7 @@ from threading import Thread
 
 class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
     """This is a main table"""
+
     def __init__(self):
         super().__init__()
         self.setupUi(self)
@@ -49,6 +51,7 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
                   self.tableWidget.item(0, 2).text(),
                   self.tableWidget.item(0, 2).text()]
         return column
+
     def change_name(self, name):
         """Defining employee name"""
         return self.label.setText(f"{name}")
@@ -59,22 +62,23 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
         item.setText(f"{self.label.text()}")
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         try:
-            if self.label.text() not in self.queue_rest_column():
+            if self.label.text() not in self.queue_rest_column() and self.label.text() not in self.rest_column():
                 rows = self.tableWidget.rowCount()
                 for i in range(rows):
                     it = self.tableWidget.item(i, 0)
                     if not it.text():
                         self.tableWidget.setItem(i, 0, item)
                         client_socket.send(bytes(self.label.text(), 'utf8'))  # Sends data through network
-                    break
+                        break
+                    elif not it.text():
+                        continue
+                    else:
+                        alert = QtWidgets.QMessageBox()
+                        alert.result()
+                        alert.setText('Sorry, no room for you, try later')
+                        alert.exec_()
 
-                else:
-                    alert = QtWidgets.QMessageBox()
-                    alert.result()
-                    alert.setText('Sorry, no room for you, try later')
-                    alert.exec_()
-
-            elif self.label.text() in self.queue_rest_column():
+            elif self.label.text() in self.queue_rest_column() or self.label.text() in self.rest_column():
                 alert = QtWidgets.QMessageBox()
                 alert.result()
                 alert.setText('Already in queue')
@@ -187,10 +191,10 @@ SERVER_ID = (HOST, PORT)
 client_socket = socket(AF_INET, SOCK_STREAM)
 client_socket.connect(SERVER_ID)
 
-
 def main():
     app = QtWidgets.QApplication(sys.argv)
     window = RestApp()
+    app.setStyle('Fusion')
     window.change_name(AgentName().define_user())
     window.show()
     Thread(target=window.receive, daemon=True).start()  # Starts loop in background
