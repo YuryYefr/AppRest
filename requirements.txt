@@ -1,2 +1,5 @@
+altgraph==0.16.1
+macholib==1.11
+PyInstaller==3.5
 PyQt5==5.12.2
 PyQt5-sip==4.19.18
