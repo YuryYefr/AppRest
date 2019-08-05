@@ -110,7 +110,6 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
                         conn = create_connection(database)
                         with conn:
                             update_task(conn, self.current_table_save())
-                        select_all_cells(conn)
                         break
                     else:
                         alert = QtWidgets.QMessageBox()
@@ -146,7 +145,6 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
             client_socket.send(bytes(self.label.text(), 'utf8'))
             with conn:
                 update_task(conn, self.current_table_save())
-            select_all_cells(conn)
 
         elif self.label.text() in self.rest_column():
             """Catch if employee already in rest status"""
@@ -172,7 +170,6 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
             client_socket.send(bytes(self.label.text(), 'utf8'))
             with conn:
                 update_task(conn, self.current_table_save())
-                select_all_cells(conn)
         else:
             """Catch if employee forgot to move himself in pending"""
             alert = QtWidgets.QMessageBox()
@@ -271,7 +268,7 @@ PORT = 35000  # Check if equal open port on server
 SERVER_ID = (HOST, PORT)
 client_socket = socket(AF_INET, SOCK_STREAM)
 client_socket.connect(SERVER_ID)
-database = ''  # Don't forget to place your path
+database = ""  # Don't forget to place your path
 conn = create_connection(database)
 
 
