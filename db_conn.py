@@ -3,6 +3,7 @@ from sqlite3 import Error
 
 
 def create_connection(db_file):
+    """Connecting db"""
     try:
         conn = sqlite3.connect(db_file)
         return conn
@@ -12,6 +13,7 @@ def create_connection(db_file):
 
 
 def create_table(conn, create_table_sql):
+    """Creating blank table"""
     try:
         c = conn.cursor()
         c.execute(create_table_sql)
@@ -20,6 +22,7 @@ def create_table(conn, create_table_sql):
 
 
 def insert_table(conn, project):
+    """Use this to read/write"""
     sql = ''' INSERT INTO Rest_table(col1, col2, col3, col4, col5, col6, col7, col8, col9, col10)
               VALUES(?,?,?,?,?,?,?,?,?,?) '''
     cur = conn.cursor()
@@ -28,6 +31,7 @@ def insert_table(conn, project):
 
 
 def update_task(conn, task):
+    """Updating table from client"""
     sql = ''' UPDATE Rest_table
               SET col1 = ?,
                     col2 = ?,
@@ -45,16 +49,8 @@ def update_task(conn, task):
 
 
 def select_all_cells(conn):
-    """
-    Query all rows in the tasks table
-    :param conn: the Connection object
-    :return:
-    """
+    """To create client table"""
     cur = conn.cursor()
     cur.execute("SELECT * FROM Rest_table WHERE id = 1")
-
     rows = cur.fetchall()
-
-    for row in rows:
-        print(row)
     return rows
