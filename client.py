@@ -238,6 +238,7 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
                 break
 
     def current_table_save(self):
+        """To rewrite db"""
         current_table = (self.tableWidget.item(0, 0).text(),
                          self.tableWidget.item(1, 0).text(),
                          self.tableWidget.item(2, 0).text(),
@@ -247,7 +248,7 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
                          self.tableWidget.item(1, 1).text(),
                          self.tableWidget.item(2, 1).text(),
                          self.tableWidget.item(3, 1).text(),
-                         self.tableWidget.item(4, 1).text(),)
+                         self.tableWidget.item(4, 1).text())
         return current_table
 
 
