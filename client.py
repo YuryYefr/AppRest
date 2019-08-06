@@ -117,12 +117,16 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
                         alert.setText('Sorry, no place for you, try later')
                         alert.exec_()
 
-            elif self.label.text() in self.queue_rest_column() or self.label.text() in self.rest_column():
+            elif self.label.text() in self.queue_rest_column():
                 alert = QtWidgets.QMessageBox()
                 alert.result()
                 alert.setText('Already in queue')
                 alert.exec_()
-
+            elif self.label.text() in self.rest_column():
+                alert = QtWidgets.QMessageBox()
+                alert.result()
+                alert.setText('Already in rest')
+                alert.exec_()
         except Exception as e:
             print(e)
 
