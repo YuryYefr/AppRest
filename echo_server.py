@@ -4,7 +4,6 @@ from threading import Thread
 
 
 class EchoServer:
-    # retrieve_data = []
     clients = {}
     addresses = {}
     HOST = ''
@@ -18,10 +17,6 @@ class EchoServer:
         while True:
             client, client_address = self.SERVER.accept()
             print(f"{client_address} has connected")
-            # for i in self.retrieve_data:
-            #     print(i)
-            #     client.send(bytes(i, 'utf8'))
-            #     time.sleep(1)
             self.addresses[client] = client_address
             Thread(target=self.client_handling, args=(client,)).start()
 
@@ -32,9 +27,7 @@ class EchoServer:
         while True:
             msg = client.recv(1024)
             if msg != bytes('', 'utf8'):
-                # self.retrieve_data.append(name)
                 self.echo(msg)
-                # print(self.retrieve_data)
             else:
                 client.send(bytes('', 'utf8'))
                 client.close()
