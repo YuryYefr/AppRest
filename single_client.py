@@ -45,6 +45,7 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
         return column
 
     def retrieve_from_db_table(self):
+        """Retrieves data from DB"""
         inject = select_all_cells(conn)
         item = QtWidgets.QTableWidgetItem()
         item.setText(f'{inject[0][1]}')
@@ -173,7 +174,7 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
             alert.exec_()
 
     def receive(self):
-        """Handles receiving of messages."""
+        """Handles the connection in different thread"""
         self.update()
         while True:
             try:
