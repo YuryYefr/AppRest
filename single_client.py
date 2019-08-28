@@ -13,10 +13,17 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
 
     def __init__(self):
         super().__init__()
+
         self.setupUi(self)
         self.pushButton_2.clicked.connect(self.click_btn_need_a_rest)
         self.radioButton.clicked.connect(self.click_ready)
         self.radioButton_2.clicked.connect(self.click_rest)
+        self.toolButton.clicked.connect(self.block_rest)
+        self.toolButton_2.clicked.connect(self.unblock_rest)
+        self.checkBox.stateChanged.connect(self.on_top)
+
+    def on_top(self):
+        self.tableWidget.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
     def search_label(self):
         """To define name of table instance"""
@@ -48,42 +55,52 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
         """Retrieves data from DB"""
         inject = select_all_cells(conn)
         item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setText(f'{inject[0][1]}')
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(0, 0, item)
         item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setText(f'{inject[0][2]}')
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(1, 0, item)
         item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setText(f'{inject[0][3]}')
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(2, 0, item)
         item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setText(f'{inject[0][4]}')
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(3, 0, item)
         item = QtWidgets.QTableWidgetItem()
         item.setText(f'{inject[0][5]}')
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(4, 0, item)
         item = QtWidgets.QTableWidgetItem()
         item.setText(f'{inject[0][6]}')
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(0, 1, item)
         item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setText(f'{inject[0][7]}')
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(1, 1, item)
         item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setText(f'{inject[0][8]}')
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(2, 1, item)
         item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setText(f'{inject[0][9]}')
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(3, 1, item)
         item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setText(f'{inject[0][10]}')
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         self.tableWidget.setItem(4, 1, item)
@@ -95,6 +112,7 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
     def click_btn_need_a_rest(self):
         """Starts waiting in queue"""
         item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setText(f"{self.label.text()}")
         item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
         try:
@@ -135,13 +153,21 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
                 it = self.tableWidget.item(i, 1)
                 if not it.text():
                     self.tableWidget.setItem(i, 1, item)
+                    item = QtWidgets.QTableWidgetItem()
+                    item.setTextAlignment(QtCore.Qt.AlignCenter)
+                    item.setText("")
+                    item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+                    self.tableWidget.setItem(row, col, item)
+                    with conn:
+                        update_table(conn, self.current_table_save())
                     break
-            item = QtWidgets.QTableWidgetItem()
-            item.setText("")
-            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
-            self.tableWidget.setItem(row, col, item)
-            with conn:
-                update_table(conn, self.current_table_save())
+
+                elif it.text() == 'blocked':
+                    alert = QtWidgets.QMessageBox()
+                    alert.result()
+                    alert.setText('Rest is currently blocked, please contact your supervisor')
+                    alert.exec_()
+                    break
 
         elif self.label.text() in self.rest_column():
             """Catch if employee already in rest status"""
@@ -156,11 +182,84 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
             alert.setText('Put yourself in queue first')
             alert.exec_()
 
+    def block_rest(self):
+        """Blocking rest column(BO only)"""
+        if self.label.text() in bo:
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('blocked')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(0, 1, item)
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('blocked')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(1, 1, item)
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('blocked')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(2, 1, item)
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('blocked')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(3, 1, item)
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('blocked')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(4, 1, item)
+            with conn:
+                update_table(conn, self.current_table_save())
+        else:
+            alert = QtWidgets.QMessageBox()
+            alert.result()
+            alert.setText('Only supervisor can do this')
+            alert.exec_()
+
+    def unblock_rest(self):
+        """Unblocking rest column(BO only)"""
+        if self.label.text() in bo:
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(0, 1, item)
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(1, 1, item)
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(2, 1, item)
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(3, 1, item)
+            item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            item.setText('')
+            item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+            self.tableWidget.setItem(4, 1, item)
+            with conn:
+                update_table(conn, self.current_table_save())
+        else:
+            alert = QtWidgets.QMessageBox()
+            alert.result()
+            alert.setText('Only supervisor can do this')
+            alert.exec_()
+
     def click_ready(self):
         """Removing employee from pending status to rest"""
         if self.label.text() in self.rest_column() or self.label.text() in self.queue_rest_column():
             emp_item = self.search_label()
             item = QtWidgets.QTableWidgetItem()
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
             item.setText("")
             item.setFlags(QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
             self.tableWidget.setItem(emp_item.row(), emp_item.column(), item)
@@ -178,8 +277,26 @@ class RestApp(QtWidgets.QMainWindow, rest_design.Ui_Rest):
         self.update()
         while True:
             try:
-                sleep(1)
+                sleep(5)
                 self.retrieve_from_db_table()
+                rows = self.tableWidget.rowCount()
+                for i in range(rows):
+                    it = self.tableWidget.item(i, 0)
+                    if not it.text() and i != 4:
+                        item = self.tableWidget.takeItem(i + 1, 0)
+                        self.tableWidget.setItem(i, 0, item)
+                        item = QtWidgets.QTableWidgetItem()
+                        item.setTextAlignment(QtCore.Qt.AlignCenter)
+                        item.setText("")
+                        item.setFlags(
+                            QtCore.Qt.ItemIsDragEnabled | QtCore.Qt.ItemIsUserCheckable | QtCore.Qt.ItemIsEnabled)
+                        self.tableWidget.setItem(i + 1, 0, item)
+                        with conn:
+                            update_table(conn, self.current_table_save())
+                            break
+                    elif it.text():
+                        continue
+
                 self.update()
             except OSError:  # Client logout
                 break
@@ -214,6 +331,7 @@ sql_table = """ CREATE TABLE IF NOT EXISTS Rest_table (
 
 database = ""  # Don't forget to set path
 conn = create_connection(database)
+bo = ['dos']
 
 
 def main():
